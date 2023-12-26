@@ -61,4 +61,14 @@ import {
 export async function getUsersDocsSnapshot(){
     const usersCollectionRef = collection(firestore,'users');
     return await getDocs(usersCollectionRef);  
+}
+
+/**
+ * 
+ * @returns {any} get video snapshot
+ * @author mydev
+ */
+export async function getVideoSnapshot() {
+    const videosCollectionRef = collection(firestore, 'videos');
+    return await getDocs(videosCollectionRef);
 }  

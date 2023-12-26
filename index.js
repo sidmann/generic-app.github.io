@@ -43,6 +43,9 @@ import {
 import { getCategoryCount } from './assets/repository/products/products.js'
 import { firebaseErrorHandler } from "./assets/js/error.js";
 import { getUserSnapshot } from './assets/repository/auth/auth.js';
+import { getCategoryDocsSnapshot } from './assets/repository/category/category.js';
+import { getManufacturerDocsSnapshot } from './assets/repository/manufacturer/manufacturer.js';
+import { getVideoSnapshot } from './assets/repository/admin-dash/admin-dash.js';
 
 //global
 const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
@@ -317,7 +320,7 @@ async function fetchAndDisplayVideos() {
     let videoElement = null
     try {
         // Fetch videos from Firestore
-        const videosSnapshot = await getDocs(collection(firestore, 'videos'));
+        const videosSnapshot = await getVideoSnapshot();
 
         // Iterate through each video document
         videosSnapshot.forEach((videoDoc) => {
@@ -434,7 +437,7 @@ function fetchCategories() {
         let categorySnapshot = null
         try {
             console.log(2)
-            categorySnapshot = await getDocs(collection(firestore, 'categories'))
+            categorySnapshot = await getCategoryDocsSnapshot();
             console.log(3)
         } catch (error) {
             console.log(error)
@@ -470,7 +473,7 @@ function fetchManufacturers() {
         let manufacturerSnapshot = null;
         try {
             console.log(2);
-            manufacturerSnapshot = await getDocs(collection(firestore, 'manufacturers'));
+            manufacturerSnapshot = await getManufacturerDocsSnapshot();
             console.log(3);
         } catch (error) {
             console.log(error);
@@ -695,7 +698,7 @@ async function fetchNavCategories() {
         </div>
     </div>
     `
-    const categorySnapshot = await getDocs(collection(firestore, 'categories'))
+    const categorySnapshot = await getCategoryDocsSnapshot();
     if (categorySnapshot.empty) {
         console.log('from empty')
         resolve()

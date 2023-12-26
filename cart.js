@@ -71,6 +71,7 @@ async function postPageLoadFunctions() {
 function postPageLoadEventListener() {
     document.querySelector('.checkout-btn').addEventListener('click', checkout)
 }
+
 /**
  * 
  * @returns promise<cart<List>>

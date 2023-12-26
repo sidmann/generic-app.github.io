@@ -79,7 +79,7 @@ export async function getManufacturerStorageImageURL(manufacturerImageFile,folde
  * manufacturer Docs Sanpshot
  * @returns mydev
  */
-export async function getManufactuerDocsSnapshot(){
+export async function getManufacturerDocsSnapshot(){
     const manufacturerCollectionRef = getManufacturerCollectionRef();
     return await getDocs(manufacturerCollectionRef);
 }
