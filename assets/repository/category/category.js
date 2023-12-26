@@ -7,22 +7,6 @@ import {
     query,
     where,
     getDocs,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    onSnapshot,
-    addDoc,
-    deleteDoc,
-    or,
-    and,
-    limit,
-    startAfter,
-    endAt,
-    orderBy,
-    getCountFromServer,
-    deleteField,
-    arrayUnion
     } from "../initialize.js";
 
 /**
@@ -42,24 +26,17 @@ import {
  * auth 
  */ 
 import {
-   auth,
-   signOut,
-   onAuthStateChanged,
-   updatePassword,
-   EmailAuthProvider,
-   reauthenticateWithCredential,
-   signInWithEmailAndPassword,
-   sendPasswordResetEmail,
-   createUserWithEmailAndPassword
+   
 } from "../initialize.js";
 
 /**
  * get category collection Ref
- * @returns my dev
+ * @returns collecRef
+ * 
+ * @author mani (write your name | dev is my name short form)
  */
 export function getCategoryCollectionRef(){
-    const categoryCollectionRef = collection(firestore,'categories');
-    return categoryCollectionRef;
+    return collection(firestore,'categories');
 }
 
 /**
