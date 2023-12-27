@@ -184,7 +184,7 @@ async function postPageLoadFunctions() {
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         loggedIn = true
-        document.querySelector('#logout-btn').style.display = 'block';
+       
         onLoggedIn();
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
@@ -198,8 +198,8 @@ onAuthStateChanged(auth, async (user) => {
             }
         });
     } else {
-        document.querySelector('#logout-btn').style.display = 'none';
-        window.location.href = "login.html";
+       onLoggedOut();
+        // window.location.href = "login.html";
     }
     await postPageLoadFunctions();
 });
@@ -277,6 +277,7 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
+    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 //to execute upon logging out
@@ -290,6 +291,7 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
+    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 

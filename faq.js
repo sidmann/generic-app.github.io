@@ -19,7 +19,6 @@ import {
     updatePassword,
     EmailAuthProvider,
     reauthenticateWithCredential,
-    firestore,
     auth
 } from "./assets/repository/initialize.js";
 
@@ -35,20 +34,20 @@ function isUserLoggedIn() {
     return !!auth.currentUser;
 }
 
-//***********************************event listener**************************************
+
 // Add an event listener to the confirmation logout button
 confirmLogoutBtn.addEventListener("click", () => {
     console.log("1")
     signOut(auth)
         .then(() => {
-            window.location.href = "login.html"; // Redirect to the login page
+            window.location.href = "login.html";
         })
         .catch((error) => {
             console.error("Error during logout:", error);
         });
 });
 
-//************************cart dependency**********************************
+
 //update cart function cart(dependency)
 /**
  * 
@@ -114,24 +113,21 @@ async function getCart() {
 //get user snapshot cart(dependency)
 function getUserSnapshot(uid) {
     const userRef = doc(firestore, 'users', uid)
-    console.log('3')
     return new Promise((resolve, reject) => {
         resolve(getDoc(userRef))
     })
 }
-//************************************************************************
+
 
   // Use onAuthStateChanged to control access to admin dashboard
-  onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
     if (user) {
-        loggedIn = true
-        document.querySelector('#logout-btn').style.display='block';
+        loggedIn = true 
         onLoggedIn();
         // User is authenticated
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         docSnap.then((docSnapshot) => {
-            // console.log(docSnapshot)
             if (docSnapshot.exists()) {
                 userData = docSnapshot.data();
                 roleAccess(userData.role);
@@ -144,16 +140,12 @@ function getUserSnapshot(uid) {
     } else {
         updateCart();
         // fetchNavCategories();
-        document.querySelector('#logout-btn').style.display = 'none';
-        // User is not authenticated, redirect to login page
-        // window.location.href = "login.html";
         onLoggedOut();
         loggedIn = false
     }
 });
 
 function updateProfileName(role, fullName) {
-    // Based on the role, select the appropriate element
     console.log(fullName)
     let profileNameElement;
     switch (role) {
@@ -192,11 +184,9 @@ function updateProfilePicture(role, profilePicture) {
             return;
     }
 
-    // Check if profilePicture is empty or undefined
     if (profilePicture && profilePicture.trim() !== '') {
         profilePictureElement.src = profilePicture;
     } else {
-        // Set to the default profile picture if no picture is provided
         profilePictureElement.src = defaultProfilePicture;
     }
 }
@@ -226,6 +216,7 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
+    document.querySelector('#logout-btn').style.display='block';
 }
 
 //to execute upon logging out
@@ -240,6 +231,7 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
+    document.querySelector('#logout-btn').style.display='none';
 }
 
 //**********************************************************************/

@@ -7,6 +7,7 @@ import {
     updatePassword,
     EmailAuthProvider,
     reauthenticateWithCredential,
+    getUserSnapshot,
 } from './assets/repository/initialize.js'
 
 //firstore
@@ -42,7 +43,6 @@ import {
 
 import { getCategoryCount } from './assets/repository/products/products.js'
 import { firebaseErrorHandler } from "./assets/js/error.js";
-import { getUserSnapshot } from './assets/repository/auth/auth.js';
 import { getCategoryDocsSnapshot } from './assets/repository/category/category.js';
 import { getManufacturerDocsSnapshot } from './assets/repository/manufacturer/manufacturer.js';
 import { getVideoSnapshot } from './assets/repository/admin-dash/admin-dash.js';
@@ -92,7 +92,7 @@ onAuthStateChanged(auth, async (user) => {
     } 
     else {
         onLoggedOut();
-        window.location.href = "login.html";
+        // window.location.href = "login.html";
     }
     await postPageLoadFunctions();
 });
