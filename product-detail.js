@@ -302,7 +302,6 @@ async function addToCart() {
     const addToCartButton = document.querySelector('.add-to-cart')
     addToCartButton.disabled = true
     addToCartButton.textContent = 'ADDING ...'
-
     if (loggedIn) {
         const cartSnapshot = await getDocs(
             query(

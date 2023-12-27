@@ -343,7 +343,6 @@ async function fetchAndDisplayProducts() {
             productDocs = cartSnapshot.docs
             cartSnapshot.forEach(async (doc) => {
                 groupedCart[doc.id].forEach(async (cartItem) => {
-                    console.log(cartItem, cartItem.color.substring(1))
                     const productsContainer = document.querySelector('.cart-products');
                     console.log(productsContainer)
 
@@ -351,14 +350,8 @@ async function fetchAndDisplayProducts() {
                     // console.log(productData);
                     // console.log(productUrl);
 
-                    // Create a product card
-                    const productPrice = getProductCalcPrice({
-                                                            basePrice: productData.price,
-                                                            colorPrice: parseFloat(cartItem.colorPrice.split('/')[0]),
-                                                            size: cartItem.size
-                                        })
                     const tableRow = document.createElement('tr')
-                    tableRow.className = `product-${productData.productId + cartItem.color.trim().substring(1) + cartItem.size}`
+                    tableRow.className = `product-${productData.productId}`
                     tableRow.innerHTML = `
                                                     <td data-label="Product" class="gi-cart-pro-name">
                                                         <a href='${"product-detail.html?data=" + productData.productId}'>
@@ -366,14 +359,8 @@ async function fetchAndDisplayProducts() {
                                                                 src="${productData.imageUrl}" alt="">${productData.name}
                                                         </a>
                                                     </td>
-                                                    <td>
-                                                        <span>${cartItem.size + 'Ltr'}</span>
-                                                    </td>
-                                                    <td>
-                                                    <span class="color-palette" style="background-color:${cartItem.color};"></span>
-                                                    </td>
                                                     <td data-label="Price" class="gi-cart-pro-price">
-                                                        <span>&#8377;<span class="product-price">${productPrice}
+                                                        <span>&#8377;<span class="product-price">${productData.price}
                                                         </span></span>
                                                     </td>
                                                     <td data-label="Quantity" class="gi-cart-pro-qty"
@@ -387,9 +374,9 @@ async function fetchAndDisplayProducts() {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td data-label="Total" class="gi-cart-pro-subtotal">&#8377;<span class="product-total">${productPrice * cartItem.quantity}</span></td>
+                                                    <td data-label="Total" class="gi-cart-pro-subtotal">&#8377;<span class="product-total">${productData.price  * cartItem.quantity}</span></td>
                                                     <td data-label="Remove" class="gi-cart-pro-remove" >
-                                                        <a href="#" class="remove-product-parent"><i class="gicon gi-trash-o remove-product" data-id="${productData.productId + cartItem.color.trim().substring(1)}"></i></a>
+                                                        <a href="#" class="remove-product-parent"><i class="gicon gi-trash-o remove-product" data-id="${productData.productId}"></i></a>
                                                     </td>
                         `
 
@@ -397,7 +384,7 @@ async function fetchAndDisplayProducts() {
                     productsContainer.appendChild(tableRow);
 
                     //add remove function to delete icon
-                    const cartId = productData.productId + cartItem.color.trim().substring(1) + cartItem.size
+                    const cartId = productData.productId
                     tableRow.querySelector('.remove-product').addEventListener('click', removeProduct.bind(this, cartId))
                     tableRow.querySelector('.inc').addEventListener('click', increaseQuantity.bind(this, productData, cartId, cartItem))
                     tableRow.querySelector('.dec').addEventListener('click', decreaseQuantity.bind(this, productData, cartId, cartItem))
@@ -417,45 +404,6 @@ async function fetchAndDisplayProducts() {
         });
 }
 
-
-/**
- * 
- * @param {*} message 
- * @param {*} type 
- * 
- * Toast Message
- */
-function displayMessage(message, type) {
-    // Get the toast container element
-    const toastContainer = document.querySelector(".toast-container");
-
-    // Create a clone of the toast template
-    const toast = document.querySelector(".toast").cloneNode(true);
-
-    // Set the success message
-    toast.querySelector(".compare-note").innerHTML = message;
-
-    //set text type  success/danger
-    if (type === "danger") {
-        toast.querySelector(".compare-note").classList.remove("text-success");
-        toast.querySelector(".compare-note").classList.add("text-danger");
-    } else {
-        toast.querySelector(".compare-note").classList.add("text-success");
-        toast.querySelector(".compare-note").classList.remove("text-danger");
-    }
-
-    // Append the toast to the container
-    toastContainer.appendChild(toast);
-
-    // Initialize the Bootstrap toast and show it
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
-
-    // Remove the toast after it's closed
-    toast.addEventListener("hidden.bs.toast", function () {
-        toast.remove();
-    });
-}
 
 //----------------------------------checkout summary------------------------------
 function waitForCheckoutSummary() {
@@ -491,7 +439,7 @@ async function checkoutSummary() {
         cartList.forEach(item => {
             const price = getProductPrice(item.productId)
             if (price) {
-                subTotal = subTotal +  getProductCalcPrice({basePrice: price, colorPrice: parseFloat(item.colorPrice.split('/')[0]), size: item.size, quantity: item.quantity})
+                subTotal = subTotal  + price
             }
         })
 
@@ -641,90 +589,6 @@ function getJsonBill(element) {
 //         }
 //     })
 // }
-
-async function validateMembershipId(event) {
-    console.log(event);
-    if (event.target.value.length > 19) {
-        const proceedBtn = document.querySelector('.proceed-btn')
-        const btnLoading = document.querySelector('.proceed-spinner')
-        const btnStatus = document.querySelector('.proceed-status')
-        const membershipIdStatus = document.querySelector('.membership-id-status')
-
-        //show loader
-        btnLoading.classList.remove('d-none')
-        btnStatus.classList.add('d-none')
-
-        console.log(event.target.value.length)
-        const userRef = doc(firestore, 'users', auth.currentUser.uid);
-        const userDoc = await getDoc(userRef);
-
-
-        // User is not associated with an agent and doesn't have a referralCode
-        const userSnapshot = await getDocs(query(collection(firestore, 'users'), where('membershipId', '==', event.target.value)))
-
-        const membershipInpuField = document.querySelector('#membership-id-input')
-        if (userSnapshot.docs[0]) {
-            console.log("found")
-            membershipInpuField.classList.add('is-valid')
-            membershipInpuField.classList.remove('is-invalid')
-            membershipIdStatus.classList.add('d-none')
-            proceedBtn.disabled = false
-            btnLoading.classList.add('d-none')
-            btnStatus.classList.remove('d-none')
-
-            // Associate the referral ID with the user in the database
-            // await updateDoc(userRef, {
-            //     referralCode: event.target.value,
-            //     referredStatus: true
-            // });
-        } else {
-            console.log('not found')
-            membershipInpuField.classList.remove('is-valid')
-            membershipInpuField.classList.add('is-invalid')
-            membershipIdStatus.classList.remove('d-none')
-            proceedBtn.disabled = true
-            btnLoading.classList.add('d-none')
-            btnStatus.classList.remove('d-none')
-        }
-    }
-}
-
-
-async function getMembershipId(event) {
-    if (!loggedIn) {
-        event.target.disabled = false
-        event.target.innerHTML = 'Proceed to checkout'
-        displayMessage('Please log in to proceed!', 'danger')
-        return
-    }
-
-    var membershipModal = new bootstrap.Modal(document.getElementById('staticBackdrop'), {
-        keyboard: false
-    });
-    membershipModal.show();
-
-    const fetchStatus = document.querySelector('.membership-id-fetch-status')
-    fetchStatus.classList.remove('d-none')
-
-    const userDoc = await getDoc(doc(firestore, 'users', auth.currentUser.uid))
-
-    //check if the user has membership id
-    if (!userDoc.get('referralCode')) {
-        fetchStatus.classList.add('d-none')
-        return
-    }
-    document.querySelector('#membership-id-input').value = userDoc.data().referralCode
-    fetchStatus.classList.add('d-none')
-
-    const keyupEvent = new Event('keyup', {
-        bubbles: false, // Allow the event to bubble up the DOM tree
-        cancelable: true, // Allow the event to be canceled
-        key: 'a', // Set the key that was pressed (you can change this to any key)
-    });
-
-    // Dispatch the 'keyup' event on the element
-    document.querySelector('#membership-id-input').dispatchEvent(keyupEvent);
-}
 
 function goToCheckout(event) {
 
@@ -982,6 +846,7 @@ async function increaseQuantity(productData, cartId, cartItem, event) {
                 where('cartId', '==', cartId),
             )
         )
+        console.log(cartDocs.docs[0])
         await updateDoc(cartDocs.docs[0].ref, { quantity: ++userInput.value })
     }
     else {
@@ -1122,4 +987,44 @@ function checkout() {
     window.location.href = `checkout.html`
 
     console.log('from checkout end')
+}
+
+
+/**
+ * 
+ * @param {*} message 
+ * @param {*} type 
+ * 
+ * Toast Message
+ */
+function displayMessage(message, type) {
+    // Get the toast container element
+    const toastContainer = document.querySelector(".toast-container");
+
+    // Create a clone of the toast template
+    const toast = document.querySelector(".toast").cloneNode(true);
+
+    // Set the success message
+    toast.querySelector(".compare-note").innerHTML = message;
+
+    //set text type  success/danger
+    if (type === "danger") {
+        toast.querySelector(".compare-note").classList.remove("text-success");
+        toast.querySelector(".compare-note").classList.add("text-danger");
+    } else {
+        toast.querySelector(".compare-note").classList.add("text-success");
+        toast.querySelector(".compare-note").classList.remove("text-danger");
+    }
+
+    // Append the toast to the container
+    toastContainer.appendChild(toast);
+
+    // Initialize the Bootstrap toast and show it
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+
+    // Remove the toast after it's closed
+    toast.addEventListener("hidden.bs.toast", function () {
+        toast.remove();
+    });
 }

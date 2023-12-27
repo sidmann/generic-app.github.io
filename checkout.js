@@ -90,7 +90,7 @@ async function postPageLoadEventListener() {
     document.querySelector('#rzp-button1').addEventListener('click', payment)
 }
 
-//******************************event listener********************************************
+
 // Add an event listener to the confirmation logout button
 confirmLogoutBtn.addEventListener("click", () => {
     signOut(auth)
@@ -103,13 +103,11 @@ confirmLogoutBtn.addEventListener("click", () => {
             console.error("Error during logout:", error);
         });
 });
-//****************************************************************************************
 
-//*****************************loading and role access********************************
-//check loggedIn or loggedOut state
-// Use onAuthStateChanged to control access to admin dashboard
-
-
+/**
+ * check loggedIn or loggedOut state
+ * Use onAuthStateChanged to control access to admin dashboard
+ */
 onAuthStateChanged(auth, async (user) => {
     const adminAppbar = document.getElementById("adminAppbar");
     const userAppbar = document.getElementById("userAppbar");
@@ -117,7 +115,7 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
         //check if local storage has cart information
-        document.querySelector('#logout-btn').style.display = 'block';
+       
         if (!localStorage.getItem('checkoutSummary')) {
             // location.href = 'cart.html'
         }
@@ -131,21 +129,17 @@ onAuthStateChanged(auth, async (user) => {
         console.log('onauth', 3)
         console.log('onauth', 5)
         docSnap.then((docSnapshot) => {
-            // console.log(docSnapshot)
             if (docSnapshot.exists()) {
                 userData = docSnapshot.data();
                 roleAccess(userData.role);
-                //for navigation items
                 onLoggedIn();
-                //show the page
                 updateProfileName(userData.role, userData.firstName);
                 updateProfilePicture(userData.role, userData.profilePicture);
 
             }
         });
     } else {
-        document.querySelector('#logout-btn').style.display = 'none';
-        // User is not logged in
+        onLoggedOut();
         loggedIn = false;
     }
     console.log('onauth', 6)
@@ -206,11 +200,9 @@ function updateProfilePicture(role, profilePicture) {
             return;
     }
 
-    // Check if profilePicture is empty or undefined
     if (profilePicture && profilePicture.trim() !== '') {
         profilePictureElement.src = profilePicture;
     } else {
-        // Set to the default profile picture if no picture is provided
         profilePictureElement.src = defaultProfilePicture;
     }
 }
@@ -226,6 +218,7 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
+    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 //to execute upon logging out
@@ -239,6 +232,7 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
+    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 //stop the loader show the main body
@@ -264,7 +258,6 @@ function showLoader(value1, value2) {
         overlayContainer.appendChild(waitBox)
     }, 5000);
 }
-//*********************************************************************
 
 
 //****************************Fetch saved address**********************
@@ -392,13 +385,10 @@ async function fetchAllAddress() {
 
 //event for phone number validation
 document.querySelector("#phone").addEventListener("keyup", () => {
-    // Validate phone number
     if (!isValidPhoneNumber(document.querySelector("#phone").value)) {
-        // Display an error message
         document.getElementById("phoneError").textContent =
             "*Phone number must be 10 digits.";
         document.getElementById("phoneError").style.scale = "1"
-        // Stop the function execution if validation fails
     } else {
         document.getElementById("phoneError").textContent = "";
     }
@@ -1374,12 +1364,11 @@ async function getCalcCartList(cartList){
         itemObject.cPrice = getProductCalcPrice(
             {
                 basePrice: basePrice,
-                colorPrice: item.colorPrice.split('/')[0],
+                colorPrice: item.colorPrice,
                 size: item.size,
                 quantity: item.quantity
             }
         )
-
         calcCartList.push(itemObject)
     })
     await Promise.all(allPromises)
