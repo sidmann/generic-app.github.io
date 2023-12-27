@@ -124,6 +124,10 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         loggedIn = true 
         onLoggedIn();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
+
         // User is authenticated
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
@@ -140,6 +144,9 @@ onAuthStateChanged(auth, (user) => {
     } else {
         updateCart();
         // fetchNavCategories();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         onLoggedOut();
         loggedIn = false
     }
@@ -216,7 +223,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display='block';
 }
 
 //to execute upon logging out
@@ -231,7 +237,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display='none';
 }
 
 //**********************************************************************/

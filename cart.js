@@ -145,7 +145,10 @@ onAuthStateChanged(auth, async (user) => {
         const docSnap = getDoc(docRef);
         var userData = null;
         loggedIn = true
-        document.querySelector('#logout-btn').style.display = 'block';
+        
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         onLoggedIn();
         docSnap.then(async (docSnapshot) => {
             // console.log(docSnapshot)
@@ -162,7 +165,9 @@ onAuthStateChanged(auth, async (user) => {
         // User is not logged in
         loggedIn = false
         console.log("form else")
-        document.querySelector('#logout-btn').style.display = 'none';
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
     }
     await postPageLoadFunctions()
     postPageLoadEventListener()
@@ -276,15 +281,15 @@ confirmLogoutBtn.addEventListener("click", () => {
  * @param {*} param0 
  * @returns 
  */
-function getProductCalcPrice({basePrice, colorPrice, size, quantity}){
-    const formattedSize = parseInt(size)
+function getProductCalcPrice({basePrice, quantity}){
+    // const formattedSize = parseInt(size)
     const formattedBasePrice = parseFloat(basePrice)
-    const formattedColorPrice = parseFloat(colorPrice)
+    // const formattedColorPrice = parseFloat(colorPrice)
 
     if (quantity){
-        return parseFloat((formattedSize * formattedBasePrice) + (formattedColorPrice * formattedSize)) * parseFloat(quantity)    
+        return parseFloat(formattedBasePrice) * parseFloat(quantity)    
     }
-    return parseFloat((formattedSize * formattedBasePrice) + (formattedColorPrice * formattedSize))
+    return parseFloat(formattedBasePrice)
 }
 
 async function fetchAndDisplayProducts() {
@@ -440,7 +445,7 @@ async function checkoutSummary() {
         cartList.forEach(item => {
             const price = getProductPrice(item.productId)
             if (price) {
-                subTotal = subTotal  + price
+                subTotal = subTotal  + (price * item.quantity) 
             }
         })
 
@@ -962,7 +967,7 @@ function updateProductCardTotal(productData, cartId, cartItem) {
     const productCard = document.querySelector(`.product-${cartId}`)
     const productTotal = productCard.querySelector('.product-total')
     const productQuantity = productCard.querySelector('.user-quantity').value
-    productTotal.textContent = (getProductCalcPrice({basePrice: productData.price, colorPrice: cartItem.colorPrice.split('/')[0], size: cartItem.size, quantity: productQuantity})).toFixed(2)
+    productTotal.textContent = (getProductCalcPrice({basePrice: productData.price, quantity: productQuantity})).toFixed(2)
 }
 
 

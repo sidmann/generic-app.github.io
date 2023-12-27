@@ -120,6 +120,10 @@ onAuthStateChanged(auth, async (user) => {
     // const agentAppbar = document.getElementById("agentAppbar");
     if (user) {
         console.log("from onAuthStateChanged" )
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         // const orders= await fetchOrdersForUser();
@@ -142,6 +146,9 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         loggedIn = false;
         console.log(loggedIn)
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         onLoggedOut();
         await updateCart();
         // fetchNavCategories();
@@ -238,7 +245,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display='block';
 }
 
 /**
@@ -255,7 +261,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 

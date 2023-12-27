@@ -74,6 +74,10 @@ onAuthStateChanged(auth, async (user) => {
     if(user) {
         loggedIn = true
         onLoggedIn();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
+
         const userDocSnapshot =await getUserSnapshot(user.uid);
             if (!userDocSnapshot.empty) {
                 userData = userDocSnapshot.data();
@@ -84,6 +88,9 @@ onAuthStateChanged(auth, async (user) => {
     } 
     else {
         onLoggedOut();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         window.location.href = "login.html";
     }
     await postPageLoadFunctions();
@@ -179,7 +186,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display='block';
 }
 
 /**
@@ -196,7 +202,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display='none';
 }
 
 /**

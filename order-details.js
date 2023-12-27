@@ -103,6 +103,9 @@ onAuthStateChanged(auth, async (user) => {
         loggedIn = true
         onLoggedIn()
         console.log(user.id)
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
 
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
@@ -120,6 +123,9 @@ onAuthStateChanged(auth, async (user) => {
     else {
         loggedIn = false
         onLoggedOut()
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
     }
     await postPageLoadFunctions()
 })
@@ -139,8 +145,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-
-    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 /**
@@ -158,8 +162,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-
-    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 /**
@@ -405,12 +407,11 @@ async function embedOrderedProducts() {
                               <div class="flex-lg-grow-1 ms-3">
                                 <h6 class="small mb-0"><a href="product-details.js?productId=${item.productId}" class="text-reset"><strong>${productDetails.name}</strong></a></h6>
                                 <span class="small"><span class="text-bold">Category :</span> <span class="text-muted">${productDetails.categoryName}</span></span><br> 
-                                <span class="small"><span class="text-bold">Color :<span class="color-palette d-inline-block ms-3 translateY-35" style="background-color:${item.color};"></span></span>
                               </div>
                             </div>
                           </td>
                           <td><span class="text-muted">Qty : </span>${item.quantity}</td>
-                          <td class="text-end"><span>&#8377</span><span>${parseFloat(item.cPrice)}</span></td>
+                        <td class="text-end"><span>&#8377</span><span>${parseFloat(item.price * item.quantity)}</span></td>
         `
         orderedProductsContainer.appendChild(tr)
     })

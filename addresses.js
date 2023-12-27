@@ -38,31 +38,22 @@ import {
     } from './assets/repository/initialize.js'
 
 //global
-const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
 var userData = null;
 var loggedIn = null;
 
-// Function to check if the user is logged in
-function isUserLoggedIn() {
-    return !!auth.currentUser;
-}
 
-//------------------------------Event listener-------------------------------------
-// Add an event listener to the confirmation logout button
-confirmLogoutBtn.addEventListener("click", () => {
+document.getElementById("confirmLogoutBtn").addEventListener("click", () => {
     signOut(auth)
         .then(() => {
-            // Redirect to the login page or perform any other actions
             console.log("User logged out successfully");
-            window.location.href = "login.html"; // Redirect to the login page
+            window.location.href = "login.html"; 
         })
         .catch((error) => {
             console.error("Error during logout:", error);
         });
 });
-//---------------------------------------------------------------------------------
 
-//---------------------------------cart dependency---------------------------------
+
 //update cart function cart(dependency)
 /**
  * 
@@ -93,26 +84,19 @@ function updateCart() {
 async function getCart() {
     return new Promise(async (resolve) => {
         if (loggedIn) {
-            console.log("form getCArt()")
             const cartSnapshot = await getDocs(collection(firestore, 'users', auth.currentUser.uid, 'cart'))
-            console.log("form getCArt(1.1)")
             if (cartSnapshot.empty) {
-                console.log("form getCArt(1.2)")
                 resolve([])
             }
-            console.log("form getCArt(1.3)")
             let cart = []
             cartSnapshot.forEach(doc => {
                 cart.push(doc.data())
             })
-            console.log("form getCArt(1.4)")
             resolve(cart)
         }
         else {
-            console.log("form getCArt1)")
             const cartSnapshot = JSON.parse(sessionStorage.getItem('cart'))
             if (!cartSnapshot) {
-                console.log('from true')
                 resolve([])
                 return
             }
@@ -125,14 +109,6 @@ async function getCart() {
     })
 }
 
-//get user snapshot cart(dependency)
-function getUserSnapshot(uid) {
-    const userRef = doc(firestore, 'users', uid)
-    console.log('3')
-    return new Promise((resolve, reject) => {
-        resolve(getDoc(userRef))
-    })
-}
 
 /**
  * Necessary fucntions to call after pageload
@@ -146,9 +122,12 @@ async function postPageLoadFunctions(){
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         loggedIn = true
-        document.querySelector('#logout-btn').style.display='block';
+
         onLoggedIn();
-        // User is authenticated
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         docSnap.then(async (docSnapshot) => {
@@ -161,14 +140,22 @@ onAuthStateChanged(auth, async (user) => {
             }
         });
     } else {
-        document.querySelector('#logout-btn').style.display='none';
         window.location.href = "login.html";
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
     }
     await postPageLoadFunctions()
 });
 
+/**
+ * 
+ * @param {*} role 
+ * @param {*} fullName 
+ * @returns 
+ * @author mydev
+ */
 function updateProfileName(role, fullName) {
-    // Based on the role, select the appropriate element
     console.log(fullName)
     let profileNameElement;
     switch (role) {
@@ -188,6 +175,13 @@ function updateProfileName(role, fullName) {
     profileNameElement.textContent = fullName;
 }
 
+/**
+ * 
+ * @param {*} role 
+ * @param {*} profilePicture 
+ * @returns 
+ * @author mydev
+ */
 function updateProfilePicture(role, profilePicture) {
     let profilePictureElement;
     const defaultProfilePicture = 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp';
@@ -207,11 +201,10 @@ function updateProfilePicture(role, profilePicture) {
             return;
     }
 
-    // Check if profilePicture is empty or undefined
     if (profilePicture && profilePicture.trim() !== '') {
         profilePictureElement.src = profilePicture;
-    } else {
-        // Set to the default profile picture if no picture is provided
+    }
+    else {
         profilePictureElement.src = defaultProfilePicture;
     }
 }
@@ -421,7 +414,6 @@ document.getElementById("addressForm").addEventListener("submit", async function
     }
 });
 
-//--------------------------------------------------------------------------------- 
 
 //------------------------------------ Toast Message--------------------------------
 

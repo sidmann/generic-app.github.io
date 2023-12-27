@@ -142,6 +142,11 @@ onAuthStateChanged(auth, async (user) => {
         console.log("if")
         loggedIn = true
         onLoggedIn();
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+           btn.classList.remove('d-none')
+        })
+
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         docSnap.then(async (docSnapshot) => {
@@ -156,6 +161,10 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         console.log("else");
         onLoggedOut()
+        
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
     }
     postPageLoadFunctions()
 });
@@ -230,7 +239,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 //to execute upon logging out
@@ -245,7 +253,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 

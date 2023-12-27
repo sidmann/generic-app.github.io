@@ -112,7 +112,10 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
         // User is logged in
-        document.querySelector('#logout-btn').style.display='block';
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         var userData = null;
@@ -134,7 +137,9 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         // User is not logged in
         loggedIn = false;
-        document.querySelector('#logout-btn').style.display = 'none';
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
     }
     
     await postPageLoadFunctions()

@@ -87,6 +87,10 @@ onAuthStateChanged(auth,async(user) => {
     if (user) {
         loggedIn = true
         onLoggedIn();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
+
         const userDocSnapshot = await getUserSnapshot(auth.currentUser.uid)
         if (!userDocSnapshot.empty) {
             const userData = userDocSnapshot.data();
@@ -102,6 +106,9 @@ onAuthStateChanged(auth,async(user) => {
         loggedIn = false;
         updateCart()
         onLoggedOut()
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         // fetchNavCategories();
     }
 });
@@ -198,7 +205,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 /**
@@ -216,7 +222,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 /**

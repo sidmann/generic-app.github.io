@@ -134,7 +134,10 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         loggedIn = true
         onLoggedIn();
-        document.querySelector('#logout-btn').style.display = 'block';
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         docSnap.then(async (docSnapshot) => {
@@ -146,6 +149,9 @@ onAuthStateChanged(auth, async (user) => {
             }
         });
     } else {
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         document.querySelector('#logout-btn').style.display = 'none';
         window.location.href = "login.html";
     }

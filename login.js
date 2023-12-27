@@ -281,13 +281,17 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('inside onauth')
         if (user) {
             console.log("if");
-            document.querySelector('#logout-btn').style.display = 'block';
+            document.querySelectorAll('.logout-btn').forEach((btn)=>{
+                btn.classList.remove('d-none')
+             })
             // console.log(user)
             // const uid = user.uid;
             // ...
         } else {
             console.log("else");
-            document.querySelector('#logout-btn').style.display = 'none';
+            document.querySelectorAll('.logout-btn').forEach((btn)=>{
+                btn.classList.add('d-none')
+             })
             // User is signed out, display the sign-out message
             // displaySignOutMessage();
         }

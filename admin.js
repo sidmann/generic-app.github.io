@@ -179,13 +179,19 @@ async function postPageLoadFunctions() {
     // await fetchNavCategories();
 }
 
-//*****************************loading and role access************************************
-// Use onAuthStateChanged to control access to admin dashboard
+
+/**
+ * Use onAuthStateChanged to control access to admin dashboard
+ * @author mydev
+ */
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         loggedIn = true
        
         onLoggedIn();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         docSnap.then(async (docSnapshot) => {
@@ -199,11 +205,18 @@ onAuthStateChanged(auth, async (user) => {
         });
     } else {
        onLoggedOut();
+       document.querySelectorAll('.logout-btn').forEach((btn)=>{
+        btn.classList.add('d-none')
+     })
         // window.location.href = "login.html";
     }
     await postPageLoadFunctions();
 });
 
+/**
+ * 
+ * @param {*} role 
+ */
 function roleAccess(role) {
     // console.log('inside role')
     const roleMap = new Map([
@@ -217,6 +230,12 @@ function roleAccess(role) {
     })
 }
 
+/**
+ * 
+ * @param {*} role 
+ * @param {*} fullName 
+ * @returns 
+ */
 function updateProfileName(role, fullName) {
     // Based on the role, select the appropriate element
     console.log(fullName)
@@ -238,6 +257,12 @@ function updateProfileName(role, fullName) {
     profileNameElement.textContent = fullName;
 }
 
+/**
+ * 
+ * @param {*} role 
+ * @param {*} profilePicture 
+ * @returns 
+ */
 function updateProfilePicture(role, profilePicture) {
     let profilePictureElement;
     const defaultProfilePicture = 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp';
@@ -277,7 +302,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 //to execute upon logging out
@@ -291,13 +315,13 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 
-
-//**********************************************************************
-
+/**
+ * 
+ * @param {*} userData 
+ */
 function populateProfileData(userData) {
     // document.getElementById("profile-avatar").src = userData.profilePic || "default-profile-pic.jpg";
     document.getElementById("displayName").value =

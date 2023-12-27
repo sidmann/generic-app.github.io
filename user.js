@@ -163,14 +163,6 @@ async function getCart() {
     })
 }
 
-//get user snapshot cart(dependency)
-function getUserSnapshot(uid) {
-    const userRef = doc(firestore, 'users', uid)
-    console.log('3')
-    return new Promise((resolve, reject) => {
-        resolve(getDoc(userRef))
-    })
-}
 
 /**
  * Necessary fucntions to call after pageload
@@ -186,7 +178,10 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         loggedIn = true
         onLoggedIn();
-        document.querySelector('#logout-btn').style.display='block';
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         // User is authenticated
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
@@ -198,28 +193,13 @@ onAuthStateChanged(auth, async (user) => {
                 populateShownDetails();
                 populateProfileData(userData);
                 console.log(auth.currentUser.uid);
-                // const viewOrdersBtn = document.querySelector(".view-orders-btn");
-                // viewOrdersBtn.addEventListener("click", async (event) => {
-                //     // const userId = event.target.getAttribute('data-user-id');
-                //     // console.log(userId);
-                //     fetchAndDisplayAllOrders(auth.currentUser.uid);
-                // });
-
-                // const totalNumberOfOrders = document.querySelector('.total-orders')
-                // calculateTotalOrders(auth.currentUser.uid).then(totalOrders => {
-                //     totalNumberOfOrders.textContent = totalOrders;
-                // })
-                // totalPurchases(auth.currentUser.uid);
-                // const totalGrandPurchases = document.querySelector('.total-purchases');
-                // totalAmountPurchases(auth.currentUser.uid).then(totalPurchasedoc => {
-                //     console.log(totalPurchasedoc);
-                //     totalGrandPurchases.innerHTML = `&#8377; ${totalPurchasedoc}` || '';
-                // })
                 getUserRealTime();
             }
         });
     } else {
-        // User is not authenticated, redirect to login page
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         window.location.href = "login.html";
     }
 
@@ -240,7 +220,6 @@ function roleAccess(role) {
 }
 
 function updateProfileName(role, fullName) {
-    // Based on the role, select the appropriate element
     let profileNameElement;
     switch (role) {
         case 'CUSTOMER':
@@ -312,10 +291,7 @@ function onLoggedOut() {
         navItem.style.display = "none";
     });
 }
-//**********************************************************************
 
-
-//********************************* Fetch order details *************************************
 
 //Fetch order details by customer 
 async function fetchAndDisplayAllOrders(userId) {

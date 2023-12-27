@@ -121,7 +121,10 @@ onAuthStateChanged(auth, async (user) => {
         }
         // User is logged in
         onLoggedIn();
-        console.log('onauth', 2)
+
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.remove('d-none')
+         })
         const docRef = doc(firestore, "users", user.uid);
         const docSnap = getDoc(docRef);
         var userData = null;
@@ -140,6 +143,9 @@ onAuthStateChanged(auth, async (user) => {
         });
     } else {
         onLoggedOut();
+        document.querySelectorAll('.logout-btn').forEach((btn)=>{
+            btn.classList.add('d-none')
+         })
         loggedIn = false;
     }
     console.log('onauth', 6)
@@ -147,8 +153,11 @@ onAuthStateChanged(auth, async (user) => {
     await postPageLoadEventListener()
 });
 
+/**
+ * 
+ * @param {*} role 
+ */
 function roleAccess(role) {
-    // console.log('inside role')
     const roleMap = new Map([
         ["ADMIN", "adminAppbar"],
         ["CUSTOMER", "customerAppbar"],
@@ -160,6 +169,12 @@ function roleAccess(role) {
     })
 }
 
+/**
+ * 
+ * @param {*} role 
+ * @param {*} fullName 
+ * @returns 
+ */
 function updateProfileName(role, fullName) {
     console.log(fullName)
     // Based on the role, select the appropriate element
@@ -181,6 +196,12 @@ function updateProfileName(role, fullName) {
     profileNameElement.textContent = fullName;
 }
 
+/**
+ * 
+ * @param {*} role 
+ * @param {*} profilePicture 
+ * @returns 
+ */
 function updateProfilePicture(role, profilePicture) {
     let profilePictureElement;
     const defaultProfilePicture = 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp';
@@ -218,7 +239,6 @@ function onLoggedIn() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'block';
 }
 
 //to execute upon logging out
@@ -232,7 +252,6 @@ function onLoggedOut() {
     navItemList.forEach((navItem) => {
         navItem.style.display = "none";
     });
-    document.querySelector('#logout-btn').style.display = 'none';
 }
 
 //stop the loader show the main body
@@ -1077,6 +1096,7 @@ function getProductsIds() {
     cartList.forEach(item => productIds.push(item.productId))
     return productIds
 }
+
 async function embedSummaryproductCards() {
     if (!cartList) {
         cartList = await getCart()
@@ -1329,16 +1349,6 @@ const showlocation = async (position) => {
         console.error('Error:', error);
     }
 
-    // locationdiv.innerHTML = `<h4>Location found</h4>\n${
-    //     data.address.neighbourhood
-    //       ? `${data.address.neighbourhood},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-    //       : data.address.road
-    //         ? `${data.address.road},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-    //         : data.address.city_district
-    //           ? `${data.address.city_district},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-    //           : `${data.address.suburb},${data.address.city},${data.address.state},${data.address.country},${data.address.postcode}`
-    //   }`;
-
 
     // Add an event listener to the "Confirm Address" button
     document.getElementById("confirmAddressBtn").addEventListener("click", () => {
@@ -1353,6 +1363,8 @@ const showlocation = async (position) => {
     });
 };
 
+
+//final cart details
 async function getCalcCartList(cartList){
     const calcCartList = []
 
@@ -1364,8 +1376,6 @@ async function getCalcCartList(cartList){
         itemObject.cPrice = getProductCalcPrice(
             {
                 basePrice: basePrice,
-                colorPrice: item.colorPrice,
-                size: item.size,
                 quantity: item.quantity
             }
         )
