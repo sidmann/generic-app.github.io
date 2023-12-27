@@ -4,7 +4,7 @@ const produtcsColRef = collection(firestore, 'products')
 
 /**
  * product collection ref
- * @returns my dev
+ * @returns my
  */
 export function getProductCollectionRef(){
     return produtcsColRef;
@@ -66,3 +66,4 @@ export async function getProductPrice(productId){
     const productDetails = await getProductDetails(productId)
     return parseFloat(productDetails.price)
 }
+

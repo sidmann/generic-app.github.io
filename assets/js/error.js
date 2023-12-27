@@ -11,15 +11,6 @@ export function firebaseErrorHandler(error) {
             break
         case 'resource-exhausted':
             displayMessage('Quota has exceeded. !', 'danger')
-            // const firebaseConfig = {
-            //     apiKey: "AIzaSyDtX4OWk4DBn5f_APfGcwiwI6qMXBCKfhk",
-            //     authDomain: "myfireapp-8d543.firebaseapp.com",
-            //     databaseURL: "https://myfireapp-8d543-default-rtdb.firebaseio.com",
-            //     projectId: "myfireapp-8d543",
-            //     storageBucket: "myfireapp-8d543.appspot.com",
-            //     messagingSenderId: "484285304427",
-            //     appId: "1:484285304427:web:54c53464c02f04a4646b2e"
-            // };
 
             break
         default:
