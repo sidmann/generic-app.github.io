@@ -1,4 +1,3 @@
-import { getUserSnapshot } from "./assets/repository/auth/auth.js";
 import {
     collection,
     query,
@@ -9,7 +8,8 @@ import {
     setDoc,
     deleteDoc,
     updateDoc,
-    storage
+    storage,
+    getUserSnapshot
 } from "./assets/repository/initialize.js";
 import {
     signInWithEmailAndPassword,

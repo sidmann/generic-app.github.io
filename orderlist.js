@@ -38,6 +38,7 @@ import {
     uploadBytes, 
     getDownloadURL,
     } from './assets/repository/initialize.js'
+import { getCartDocsSnapshot } from './assets/repository/userCart/userCart.js';
 
 var userData = null;
 var loggedIn = null;
@@ -244,7 +245,7 @@ async function fetchNavCategories() {
         </div>
     </div>
     `
-    const categorySnapshot = await getDocs(collection(firestore, 'categories'))
+    const categorySnapshot = await getCartDocsSnapshot();
     if (categorySnapshot.empty) {
         console.log('from empty')
         resolve()

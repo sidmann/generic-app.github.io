@@ -116,3 +116,16 @@ export {
     getDownloadURL,
     deleteObject
 }
+
+/**
+ * 
+ * Add an event listener to the confirmation logout button
+ * @param {string} userId 
+ * @returns {userDoc} in the jsonData format  
+ * @author mydev 
+ */
+
+export function getUserSnapshot(userId){
+    const userCollectionDoc = doc(firestore,'users',userId);
+    return getDoc(userCollectionDoc);
+ }

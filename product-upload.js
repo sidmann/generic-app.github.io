@@ -21,7 +21,8 @@ import {
     orderBy,
     getCountFromServer,
     deleteField,
-    arrayUnion
+    arrayUnion,
+    getUserSnapshot
 } from './assets/repository/initialize.js'
 
 //Auth
@@ -42,10 +43,10 @@ import {
     getDownloadURL,
 } from './assets/repository/initialize.js'
 
-import { getUserSnapshot } from './assets/repository/auth/auth.js';
+
 import { 
-    getManufactuerDocsSnapshot,
     getManufacturerCollectionRef, 
+    getManufacturerDocsSnapshot, 
     getManufacturerQuerySnapshot,
     getManufacturerStorageImageURL,
     getStorageImageFolderPathFileName 
@@ -57,19 +58,6 @@ import {
     getCategoryQuerySnapshot, 
     getCategoryStorageImageURL 
 } from './assets/repository/category/category.js';
-
-import { 
-    getColorCollectionRef,
-    getColorDocsQuerySnapshot,
-    getColorDocsSnapshot 
-} from './assets/repository/colors/colors.js';
-
-import { 
-    getSizeCollectionRef, 
-    getSizeDocsQuerySnapshot,
-    getSizeDocsSnapshot
-} from './assets/repository/sizes/sizes.js';
-import { getProductCollectionRef } from './assets/repository/products/products.js';
 
 var userData = null;
 var loggedIn = false;
@@ -342,7 +330,7 @@ document.getElementById('saveManufacturerButton').addEventListener('click', asyn
  */
 async function populateManufacturerList() {
     const manufacturerList = document.getElementById('manufacturerList');
-    const manufacturerDocsSnapshot =await getManufactuerDocsSnapshot();
+    const manufacturerDocsSnapshot =await getManufacturerDocsSnapshot();
 
     if(!manufacturerDocsSnapshot.empty){
         manufacturerList.innerHTML = '';
@@ -454,7 +442,7 @@ async function loadAllManufacturers(event) {
     select.innerHTML = `<option value="">
                                 Loading ...
                             </option>`
-    const manufacturerSnapshot = await getManufactuerDocsSnapshot();
+    const manufacturerSnapshot = await getManufacturerDocsSnapshot();
     if (!manufacturerSnapshot.empty) {
         select.removeEventListener('click', loadAllManufacturers)
         select.innerHTML = ``
@@ -659,547 +647,7 @@ async function loadAllCategories(event) {
 //------------------------------------------------------------------------------------
 
 
-// ---------------------------- ColorAdd Manage---------------------------------------
-/**
- * save the color for product
- */
-document.querySelector('#save-color-button').addEventListener('click', saveColorFoProducts)
-
-/**
- * to load the colors when open the colormodel
- * @returns mydev
- */
-const openAddColorModel = document.querySelector('#add-color-model')
-openAddColorModel.addEventListener('click', () => {
-    document.getElementById('color-name').value = ''
-    document.getElementById('color-hexcode').value = ''
-    document.getElementById('color-price').value = ''
-    fetchColorsForProducts();
-})
-
-/**
- * save color for product
- * @returns mydev
- */
-async function saveColorFoProducts(){  
-    const colorName  = document.querySelector('#color-name').value;
-    const colorhexcode  = document.querySelector('#color-hexcode').value;
-    const colorPrice  = document.querySelector('#color-price').value;
-    
-    if(!colorName || !colorhexcode || !colorPrice){
-        displayMessage('Please Enter All field','danger');
-
-        if (!colorName) {
-            document.querySelector('#color-name').focus();
-        } else if (!colorhexcode) {
-            document.querySelector('#color-hexcode').focus();
-        } else if (!colorPrice) {
-            document.querySelector('#color-price').focus();
-        }
-        return;
-    }
-    
-    const colorCollectionRef = getColorCollectionRef();
-    const docRef = await addDoc(colorCollectionRef,
-        {
-            colorName: colorName,
-            colorhexcode: colorhexcode,
-            colorPrice: colorPrice  
-        });
-    await updateDoc(docRef, { colorId: docRef.id });
-    fetchColorsForProducts();
-    displayMessage('colorDetails added successfully', 'success');
-    document.querySelector('#color-name').value = ''
-    document.querySelector('#color-hexcode').value = ''
-    document.querySelector('#color-price').value = ''
-}
-
-/**
- * fetch colors for particuler product
- * @returns mydev
- * @author mydev
- */
-async function fetchColorsForProducts(){
-    const productSnapshot = await getColorDocsSnapshot();
-    let productColorContainer = document.querySelector('#color-pro-container');
-
-    if (!productSnapshot.empty) {
-        productColorContainer.removeEventListener('click', fetchColorsForProducts);
-        productColorContainer.innerHTML = ''
-        productSnapshot.forEach((doc) => {
-
-        const docData = doc.data();
-        // console.log(docData)
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('colorboxcontainer','border')
-        productDiv.innerHTML = `
-                        <div id="colordisplay border-bottom" style="background-color: ${docData.colorhexcode}; padding: 2em 5em;" data-colorId ="product-${docData.colorId}" class=" colorbox">
-                        </div>
-                            <div class="d-flex align-items-center justify-content-between p-2">
-                            <div class="m-r-30">
-                                <p id="color-name-display" class="m-0">${docData.colorName}</p>
-                                <p id="color-price-display" class="m-0">${docData.colorPrice} /Ltr</p>
-                            </div>
-                            <button class="edit" id="selected-product-color">
-                                <i class="fa-regular fa-pen-to-square" 
-                                 data-colorId="${doc.id}" data-colorName="${docData.colorName}"
-                                 data-colorPrice="${docData.colorPrice}"></i>
-                            </button>
-
-                            <button class="delete" id="selected-product-color">
-                                <i class="fa-solid fa-trash" 
-                                 data-colorId="${doc.id}" data-colorName="${docData.colorName}"
-                                 data-colorPrice="${docData.colorPrice}"></i>
-                            </button>
-                        </div> 
-                        `
-            productColorContainer.appendChild(productDiv);
-            productDiv.querySelector('.delete').addEventListener('click', async (event) => {
-                event.preventDefault();
-               if(event.target){
-                    const colorId = event.target.getAttribute('data-colorId')
-                    deleteColor(colorId)
-               }
-            })
-
-            productDiv.querySelector('.edit').addEventListener('click', async (event) => {
-                event.preventDefault();
-                if (event.target) {
-                    // console.log(event.target);
-                    const colorId = event.target.getAttribute('data-colorId')
-                    const colorPrice = event.target.getAttribute('data-colorPrice')
-                    editColor(colorId,colorPrice)
-                }
-            })
-        });
-    }
-    else {
-        productColorContainer.innerHTML = `<option value="">Colors not exists for this product</option>`
-        displayMessage('Colors not exists for this product!', 'danger')
-    }
-}
-
-/**
- * edit the color based on the colorId and colorPrice
- * @param {*} colorId 
- * @param {*} colorPrice 
- * @author mydev
- */
-async function editColor(colorId, colorPrice) {
-    console.log(colorId)
-    console.log('from color')
-    const updatedColorPrice = prompt('Edit Color Price:', colorPrice);
-    if (updatedColorPrice !== null) {
-        const colorQuerySnapshot = await getColorDocsQuerySnapshot(colorId);
-        if (!colorQuerySnapshot.empty) {
-            console.log(colorQuerySnapshot.docs[0].data())
-            updateDoc(colorQuerySnapshot.docs[0].ref, { colorPrice : updatedColorPrice })
-                .then(() => {
-                    console.log(`Successfully Updated to ${updatedColorPrice}`)
-                    console.log('Color updated successfully');
-                    displayMessage('color updated successfully!', 'success');
-                    fetchColorsForProducts();
-                })
-                .catch((error) => {
-                    console.error('Error updating color:', error);
-                });
-        }
-    }
-}
-
-/**
- * delete color based on the colorId
- * @param {*} colorId 
- * @author mydev
- */
-async function deleteColor(colorId) {
-    console.log(colorId);
-    const confirmation = confirm('Are you sure you want to delete this color?');
-
-    if (confirmation) {
-        try {
-            const colorSnapshot = await getColorDocsQuerySnapshot(colorId);
-            if (!colorSnapshot.empty) {
-                await deleteDoc(colorSnapshot.docs[0].ref)
-            }
-            console.log('Color deleted successfully');
-            displayMessage('Color deleted successfully!', 'success');
-            fetchColorsForProducts();
-        } catch (error) {
-            console.error('Error deleting color:', error);
-        }
-    }
-}
-//-----------------------------------------------------------------------------------
-
-
-
-//------------------------------------ Select colors for product---------------------
-/**
- * model open for Color selection
- * @author mydev
- */
-const openSelectColorModel = document.querySelector('#select-color-model')
-openSelectColorModel.addEventListener('click',()=>{
-    fetchColorsForSelect();
-})
-
-/**
- * define empty arrays
- */
-var selectedColorIds = []
-var selectedColorHexcode = []
-const selectedColorsContainer = document.querySelector('.selected-color-container');
-const colorCountElement = document.querySelector('.selected-color-counter');
-
-/**
- * fetch colors to select the colors
- * @returns mydev
- */
-async function fetchColorsForSelect(){
-    selectedColorIds=[]
-    selectedColorHexcode = []
-    
-    const colorDocsSnapshot = await getColorDocsSnapshot();
-    let productColorContainer = document.querySelector('#color-select-container');
-    if(!colorDocsSnapshot.empty){
-        console.log(selectedColorIds)
-        console.log(selectedColorHexcode)
-        productColorContainer.removeEventListener('click',fetchColorsForSelect);
-        productColorContainer.innerHTML = ''
-        selectedColorsContainer.innerHTML = ''
-        colorDocsSnapshot.forEach((doc)=>{
-        const docData = doc.data();
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('colorboxcontainer','border')
-        productDiv.innerHTML = `
-                        <div id="colordisplay border-bottom" style="background-color: ${docData.colorhexcode}; padding: 2em 5em;" data-colorId ="product-${docData.colorId}" class=" colorbox">
-                        </div>
-                            <div class="d-flex align-items-center justify-content-between p-2">
-                            <div class="m-r-30">
-                                <p id="color-name-display" class="m-0">${docData.colorName}</p>
-                                <p id="color-price-display" class="m-0">${docData.colorPrice} /Ltr</p>
-                            </div>
-                            <a class="select-color" id="selected-product-color" 
-                            data-colorId="${doc.id}" 
-                            data-colorName="${docData.colorName}"
-                            data-colorPrice="${docData.colorPrice}" 
-                            data-colorHexcode="${docData.colorhexcode}">
-                                select
-                            </a>
-                        </div> 
-                        `           
-            productColorContainer.appendChild(productDiv);  
-            productDiv.querySelector('.select-color').addEventListener('click',async(event)=>{
-                event.preventDefault();
-                if(event.target){
-                    // console.log(event.target);
-                    const colorId = event.target.getAttribute('data-colorId');
-                    const colorHexcode = event.target.getAttribute('data-colorHexcode')
-                    
-                    if(!selectedColorIds.includes(colorId)){
-                       selectedColorIds.push(colorId);
-                       selectedColorHexcode.push(colorHexcode);
-                    }
-                    updateSelectedColorsDisplay();
-                }
-            })
-        });   
-    }
-    else{
-        productColorContainer.innerHTML = `<option value="">Colors not exists for this product</option>`
-        displayMessage('Colors not exists for this product!', 'danger')  
-    }
-}
-
-/**
- * selected colors
- * @author mydev
- */
-
-function updateSelectedColorsDisplay(){
-    selectedColorsContainer.innerHTML = ' ';
-    colorCountElement.textContent = selectedColorIds.length > 0 ? `${selectedColorIds.length} Color Selected` : 'No colors selected';
-    console.log("update")
-    selectedColorHexcode.forEach((colorHexcode, index) => {
-
-        console.log(colorHexcode,index)
-        const colorDiv = document.createElement('div');
-        colorDiv.innerHTML= 
-        `<div style="background-color: ${colorHexcode}; width: 50px; height: 50px; margin-right: 10px;" 
-        title="Color ${index + 1}: ${colorHexcode}">
-        </div>
-        <button class="delete" data-index="${index}">delete</button>
-        `
-        colorDiv.querySelector('.delete').addEventListener('click', () => {
-            if(index>-1){
-                console.log(index)
-                selectedColorIds.splice(index, 1);
-                selectedColorHexcode.splice(index, 1);
-                updateSelectedColorsDisplay();
-            }
-        });
-        console.log(selectedColorIds)
-        console.log(selectedColorHexcode)
-        selectedColorsContainer.appendChild(colorDiv);
-    });
-}
-// --------------------------------------------------------------------------------
-
-//------------------------------ Add sizes------------------------------------------
-/**
- * save the size for product
- */
-document.querySelector('#save-size-button').addEventListener('click',saveSizesFoProducts)
-
-/**
- * to load the sizes when open the sizemodel
- * @returns mydev
- */
-const openAddSizesModel = document.querySelector('#add-size-model')
-openAddSizesModel.addEventListener('click',()=>{
-    fetchSizesForProduct();
-    document.getElementById('product-size').value = ''
-})
-
-/**
- * save sizes for product
- * @returns mydev
- */
-async function saveSizesFoProducts(){  
-    const productSize  = document.querySelector('#product-size').value;
-    if(!productSize){
-        displayMessage('Please Enter All fields!','danger');
-        if (!productSize) {
-            document.querySelector('#product-size').focus();
-        }
-        return;
-    }
-    const sizeCollectionRef = getSizeCollectionRef()
-    const docRef = await addDoc(sizeCollectionRef,
-        {
-           size : productSize,
-           unit : "ltr"
-        });
-    await updateDoc(docRef , {sizeId : docRef.id});
-    fetchSizesForProduct();
-    displayMessage('Product size added successfully','success');
-    document.querySelector('#product-size').value = ''
-}
-
-/**
- * fetch sizes for particuler product
- * @returns mydev
- */
-async function fetchSizesForProduct(){
-    console.log("1")
-
-    const productSnapshot = await getSizeDocsSnapshot();
-    // console.log(productSnapshot)
-    let productSizesContainer = document.querySelector('#product-size-list');
-    if(!productSnapshot.empty){
-        productSizesContainer.removeEventListener('click',fetchSizesForProduct);
-        selectedColorsContainer.innerHTML = ''
-        productSizesContainer.innerHTML = ''
-        productSnapshot.forEach((doc)=>{
-        const docData = doc.data();
-        console.log(docData)
-        const productRow = document.createElement('tr');
-        productRow.innerHTML = `
-                        <td data-sizeId=${docData.sizeId}>${docData.size} &nbsp ${docData.unit}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary edit"
-                             data-sizeId="${docData.sizeId}"
-                             data-size="${docData.size}">Edit</button>
-                            <button class="btn btn-sm btn-danger delete"
-                             data-sizeId='${docData.sizeId}'
-                             data-size="${docData.size}">Delete</button>
-                        </td>
-                        `
-            console.log(productRow)
-            productSizesContainer.appendChild(productRow);
-
-            productRow.querySelector('.edit').addEventListener('click', async (event) => {
-                event.preventDefault();
-                if(event.target){
-                    const sizeId = event.target.getAttribute('data-sizeId');
-                    const size = event.target.getAttribute('data-size')
-                    editSize(sizeId,size)
-                }
-            });
-
-            productRow.querySelector('.delete').addEventListener('click', async (event) => {
-                event.preventDefault();
-                if(event.target){
-                    const sizeId = event.target.getAttribute('data-sizeId');
-                    deleteSize(sizeId);
-                }
-            })
-
-        });
-    }
-    else {
-        productSizesContainer.innerHTML = `<option value="">Colors not exists for this product</option>`
-        displayMessage('Sizes not exists for this product!', 'danger')
-    }
-}
-
-/**
- * edit the size based on the szieId and size
- * @param {*} sizeId 
- * @param {*} size 
- */
-async function editSize(sizeId,size) {
-    console.log(sizeId)
-    console.log('from color')
-    const updatedsize = prompt('Edit Color Price:', size);
-
-    if (updatedsize !== null) {
-        const sizeQuerySnapshot = await getSizeDocsQuerySnapshot(sizeId)
-
-        if (!sizeQuerySnapshot.empty) {
-            console.log(sizeQuerySnapshot.docs[0].data())
-            updateDoc(sizeQuerySnapshot.docs[0].ref, { size : updatedsize})
-                .then(() => {
-                    console.log(`Successfully Updated to ${updatedsize}`)
-                    console.log('Color updated successfully');
-                    displayMessage('size updated successfully!', 'success');
-                    // document.querySelector('#categoryDropdown').addEventListener('click', loadAllCategories)
-                    fetchSizesForProduct();
-                })
-                .catch((error) => {
-                    console.error('Error updating size:', error);
-                });
-        }
-    }
-}
-
-/**
- * delete color based on the colorId
- * @param {*} colorId 
- */
-async function deleteSize(sizeId) {
-    console.log(sizeId);
-    const confirmation = confirm('Are you sure you want to delete this color?');
-
-    if (confirmation) {
-        try {
-            const sizeQuerySnapshot = await getSizeDocsQuerySnapshot(sizeId);
-
-            if (!sizeQuerySnapshot.empty) {
-                await deleteDoc(sizeQuerySnapshot.docs[0].ref)
-            }
-            console.log('Color deleted successfully');
-            displayMessage('Color deleted successfully!', 'success');
-            // document.querySelector('#categoryDropdown').addEventListener('click', loadAllCategories)
-            fetchSizesForProduct();
-        } catch (error) {
-            console.error('Error deleting size:', error);
-        }
-    }
-}
-// ---------------------------------------------------------------------------------------
-
-// ------------------------------------ Select the sizes----------------------------------
-var selectedSizeIds = [];
-var selectedSize = []
-const selectedSizesContainer = document.querySelector('.selected-size-container');
-const sizeCountElement = document.querySelector('.selected-size-counter')
-
-/**
- * open select size model
- * 
- */
-const openSelectSizeModel = document.querySelector('#select-size-model')
-openSelectSizeModel.addEventListener('click',()=>{
-    fetchSizesForSelect();
-})
-
-/**
- * fetch the sizes for Select 
- */
-async function fetchSizesForSelect(){
-    console.log("1")
-    const productSnapshot = await getSizeDocsSnapshot();
-    // console.log(productSnapshot)
-    let productSizesContainer = document.querySelector('#select-product-size-list');
-    if(!productSnapshot.empty){
-        selectedSizeIds = [];
-        selectedSize = []
-        console.log(selectedSizeIds)
-        console.log(selectedSize)
-        productSizesContainer.removeEventListener('click',fetchSizesForSelect);
-        productSizesContainer.innerHTML = ''
-        selectedSizesContainer.innerHTML = ''
-        productSnapshot.forEach((doc)=>{
-        const docData = doc.data();
-        console.log(docData)
-        const productRow = document.createElement('tr');
-        productRow.innerHTML = `
-                        <td data-sizeId=${docData.sizeId}>${docData.size} &nbsp ${docData.unit}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary select"
-                             data-sizeId="${docData.sizeId}"
-                             data-size="${docData.size}">Select</button>
-                        </td>
-                        `       
-            console.log(productRow)                
-            productSizesContainer.appendChild(productRow); 
-            
-            productRow.querySelector('.select').addEventListener('click',async(event)=>{
-                event.preventDefault();
-                if(event.target){
-                    const sizeId = event.target.getAttribute('data-sizeId');
-                    const size = event.target.getAttribute('data-size')
-                    if(!selectedSizeIds.includes(sizeId)){
-                        selectedSizeIds.push(sizeId);
-                        selectedSize.push(size);
-                     }
-                    updateSelectedSizesDisplay();
-                }
-            });
-        });
-    }
-    else{
-        productSizesContainer.innerHTML = `<option value="">Colors not exists for this product</option>`
-        displayMessage('Sizes not exists for this product!', 'danger')  
-    }
-}
-
-/**
- * update selected sizes in the select size model
- * @returns mydev
- */
-
-function updateSelectedSizesDisplay(){
-    selectedSizesContainer.innerHTML = ' ';
-    sizeCountElement.textContent = selectedSizeIds.length > 0 ? `${selectedSizeIds.length} Size Selected` : 'No Sizes selected';
-    console.log("update")
-    selectedSize.forEach((size, index) => {
-        const sizeDiv = document.createElement('div');
-        sizeDiv.innerHTML= 
-        `<div; width: 50px; height: 50px; margin-right: 10px;" 
-        title="Color ${index + 1}: ${size}">${size}
-        </div>
-        <button class="delete btn btn-danger mb-3" data-index="${index}" >delete</button>
-        `
-        sizeDiv.querySelector('.delete').addEventListener('click', () => {
-            if(index>-1){
-                console.log(index)
-                selectedSizeIds.splice(index, 1);
-                selectedSize.splice(index, 1);
-                selectedSizesContainer.removeChild(sizeDiv);
-                updateSelectedColorsDisplay();
-            }
-        });
-        selectedSizesContainer.appendChild(sizeDiv);
-        console.log(selectedSizeIds)
-        console.log(selectedSize)
-    });
-}
-// -------------------------------------------------------------------------
-
-// ------------------------ Upload Product ---------------------------------
+// ------------------------ Upload Product ------------------------------------------
 // Add a click event listener to the Upload Product
 const uploadProductButton = document.getElementById('uploadProductButton');
 uploadProductButton.addEventListener('click', uploadProduct);
@@ -1213,21 +661,13 @@ async function uploadProduct() {
     const fileInput = document.getElementById('productImage');
     const manufacturerOption = document.getElementById('manufacturer-dropdown').options[document.getElementById('manufacturer-dropdown').selectedIndex];
     const categoryOption = document.getElementById('categoryDropdown').options[document.getElementById('categoryDropdown').selectedIndex];
-    console.log(manufacturerOption);
-    console.log(categoryOption)
-    // const colorShadeOption = document.getElementById('colorShadeDropdown').options[document.getElementById('colorShadeDropdown').selectedIndex];
-    // const productSizeOption = document.getElementById('productSizeDropdown').options[document.getElementById('productSizeDropdown').selectedIndex];
     const productDescriptionTextarea = document.querySelector('#product-description');
     const productDetailsTextarea = document.querySelector('#product-details');
     const productSpecificationsTextarea = document.querySelector('#product-specifications')
     const selectedFile = fileInput.files[0];
-    console.log(selectedColorIds);
-    console.log(selectedSizeIds)
 
     if (productName && productPrice && manufacturerOption && categoryOption
-         && selectedFile && productDescriptionTextarea && productDetailsTextarea
-        && productSpecificationsTextarea && selectedColorIds.length!==0 && selectedSizeIds.length !==0
-         ) {
+         && selectedFile && productDescriptionTextarea && productDetailsTextarea && productSpecificationsTextarea) {
         const fileName = `${productId}/${selectedFile.name}`;
         const folderRef = ref(storage, 'product-images');
         const imageRef = ref(folderRef, fileName);
@@ -1246,8 +686,6 @@ async function uploadProduct() {
                                 manufacturerId: manufacturerOption.getAttribute('data-id'),
                                 categoryName: categoryOption.value,
                                 categoryId: categoryOption.getAttribute('data-id'),
-                                colorIds :selectedColorIds,
-                                sizeIds : selectedSizeIds,
                                 ProductDescription: productDescriptionTextarea.value,
                                 productDetails:productDetailsTextarea.value,
                                 productSpecifications:productSpecificationsTextarea.value,

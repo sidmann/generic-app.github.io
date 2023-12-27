@@ -45,7 +45,6 @@ let productDocs = null
 // document.querySelector('.proceed-btn').addEventListener('click', goToCheckout)
 
 
-//-------------------------------cart dependency-----------------------------
 //get user snapshot cart(dependency)
 async function getUserSnapshot(uid) {
     return new Promise((resolve, reject) => {

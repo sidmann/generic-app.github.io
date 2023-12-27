@@ -1,13 +1,12 @@
 //Auth
-import { getUserSnapshot } from './assets/repository/auth/auth.js'
-import { getColorDocSnapshot } from './assets/repository/colors/colors.js'
 import  {
     auth, 
     signOut,
     onAuthStateChanged,
     updatePassword,
     EmailAuthProvider,
-    reauthenticateWithCredential } from './assets/repository/initialize.js'
+    reauthenticateWithCredential, 
+    getUserSnapshot} from './assets/repository/initialize.js'
 
 //firstore
 import {
@@ -39,7 +38,6 @@ import {
     getDownloadURL,
     } from './assets/repository/initialize.js'
 import { getProductDocsQuerySnapshot } from './assets/repository/products/products.js'
-import { getSizeDocSnapshot } from './assets/repository/sizes/sizes.js'
 
 /**
  * Global Variables
@@ -248,106 +246,17 @@ async function getAndEmbedProductData(productId) {
     const productIdNo = document.querySelector('.product-id')
     const productCategory = document.querySelector('.product-category')
     const productSection = document.querySelector('.product-section')
-    const productColorContainer = document.querySelector('#color-pro-container');
-    const selectedColorsContainer = document.querySelector('.selected-color')
     const productDesc = document.querySelector('.gi-single-desc')
     const productDetails =  document.querySelector('.gi-single-pro-tab-details')
     const productSpecifications = document.querySelector('.gi-single-pro-tab-spec');
-    productColorContainer.innerHTML = '';
     
     // console.log(productFirstImageList[0],productFirstImageList[1])
     productFirstImageList[0].src = productData.imageUrl
     productFirstImageList[1].src = productData.imageUrl
     console.log(productData.price);
-    
-    const productSizes = [];
-    const productDetailSize = document.querySelector('#size-pro-detail-dropdown')
-    
+ 
     const defaultPrice = productData.price;
     productPrice.textContent = defaultPrice;
-    const promises = productData.sizeIds.map(async (sizeId) => {
-        const sizeSnapshot = await getSizeDocSnapshot(sizeId)
-        const sizeData = sizeSnapshot.data();
-        if (sizeData) {
-            // console.log(sizeData);
-            productSizes.push(sizeData);
-        } else {
-            console.log(`Size with ID ${sizeId} does not exist in Firestore.`);
-        }
-    });
-    
-    await Promise.all(promises);
- 
-     console.log(productSizes)
-     productDetailSize.innerHTML = '';
-     productSizes.sort((a, b) => a.size - b.size)
-     productSizes.forEach((sizeData) => {
-        const option = document.createElement('option');
-        // option.innerHTML =`<option value="1 Ltr" >1 Ltr</option>` 
-        option.setAttribute('value', sizeData.size);
-        option.setAttribute('data-sizeId', sizeData.sizeId);
-        option.innerHTML = `${sizeData.size} Ltr`;
-        if (sizeData.size === productSizes[productSizes.length-1].size){
-            option.selected = true
-        } 
-        productDetailSize.appendChild(option);
-    });
-
-    productDetailSize.addEventListener('change',async(event)=>{
-        event.preventDefault();
-        const selectedSizeId  = event.target.options[event.target.selectedIndex].getAttribute('data-sizeId');
-        const selectedSizeData = productSizes.find(size=>size.sizeId===selectedSizeId);
-        if(selectedSizeData){
-            const calculatedPrice = defaultPrice * selectedSizeData.size;
-            productPrice.textContent = calculatedPrice;
-        }
-    })
-    productDetailSize.dispatchEvent(new Event('change'))
-
-    productData.colorIds.forEach(async(colorId)=>{
-        const colorSnapshot = await getColorDocSnapshot(colorId);
-        const colorData = colorSnapshot.data();
-        // console.log(colorData)
-
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('colorboxcontainer','border')
-        productDiv.innerHTML = `
-                    <div id="colordisplay border-bottom" style="background-color: ${colorData.colorhexcode};
-                    padding: 2em 5em;" class="product-${productId} 
-                    data-colorId="${colorData.colorId}"
-                    data-colorName="${colorData.colorName}"
-                    data-colorPrice="${colorData.colorPrice}"
-                    data-colorHexcode="${colorData.colorhexcode}"
-                     colorbox">
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between p-2">
-                    <div class="m-r-30" id="selected-color-container">
-                        <p id="color-name-display" class="m-0">${colorData.colorName}</p>
-                        <p id="color-price-display" class="m-0">${colorData.colorPrice} /Ltr</p>
-                        <p id="color-hexcode-display" class="m-0 visually-hidden">${colorData.colorhexcode}</p>
-                    </div>
-                    <a class="gi-btn-1 p-1" href="" id="selected-product-color"
-                    data-colorId="${colorData.colorId}"
-                    data-colorName="${colorData.colorName}"
-                    data-colorPrice="${colorData.colorPrice}"
-                    data-colorHexcode="${colorData.colorhexcode}">Select</a>
-                    </div>  
-                `
-        const selectButton = productDiv.querySelector("#selected-product-color")
-        selectButton.addEventListener('click',(e)=>{
-        e.preventDefault();
-        const contentWitoutLink = productDiv.cloneNode(true);
-        const selectButtonToRemove = contentWitoutLink.querySelector('a');
-        if(selectButtonToRemove){
-            selectButtonToRemove.remove();
-        }
-         selectedColorsContainer.innerHTML= contentWitoutLink.innerHTML;
-         displayMessage('Color Selected !', 'success');
-       })
-       productColorContainer.appendChild(productDiv);
-    });
-
-
     productName.textContent = productData.name
     // productPrice.textContent = productData.price
     productDesc.textContent = productData.featuredProductDescription;
@@ -394,37 +303,19 @@ async function addToCart() {
     addToCartButton.disabled = true
     addToCartButton.textContent = 'ADDING ...'
 
-    const selectedColor = document.querySelector('.selected-color');
-    const selectedColorPrice = document.querySelector('#color-price-display')
-    const color = document.querySelector('#color-hexcode-display')
-    const selectSizeDropdown = document.querySelector('#size-pro-detail-dropdown')
-    const selectedSize = selectSizeDropdown.options[selectSizeDropdown.selectedIndex].value
-    console.log(color.textContent.trim())
-
-    console.log(selectedColor.childElementCount)
-    if (selectedColor.childElementCount === 0) {
-        // If no color is selected, display an error message or handle it as needed
-        addToCartButton.disabled = false
-        addToCartButton.textContent = 'ADD TO CART'
-        displayMessage('Please select a color before adding to cart.', 'danger');
-        return;
-    }
     if (loggedIn) {
         const cartSnapshot = await getDocs(
             query(
                 collection(firestore, 'users', auth.currentUser.uid, 'cart'),
-                where('cartId', '==', productId + color.textContent.trim().substring(1) + selectedSize),
+                where('cartId', '==', productId),
             )
         )
         console.log(cartSnapshot.empty)
         if (cartSnapshot.empty) {
-            await setDoc(doc(collection(firestore, 'users', auth.currentUser.uid, 'cart'), productId + color.textContent.trim().substring(1) + selectedSize), {
-                cartId: productId + color.textContent.trim().substring(1) + selectedSize,
+            await setDoc(doc(collection(firestore, 'users', auth.currentUser.uid, 'cart'), productId), {
+                cartId: productId,
                 productId: productId,
                 quantity: document.querySelector('.user-quantity').value,
-                color: color.textContent,
-                colorPrice: selectedColorPrice.textContent.trim(),
-                size: selectedSize
             })
         }
         else {
@@ -436,7 +327,7 @@ async function addToCart() {
         console.log("form else")
         if (cart) {
             console.log(productId)
-            const result = cart.findIndex(doc => doc.cartId === productId + color.textContent.trim().substring(1) + selectedSize)
+            const result = cart.findIndex(doc => doc.cartId === productId)
             console.log(result)
             if (result >= 0) {
                 cart[result].quantity = document.querySelector('.user-quantity').value;
@@ -444,24 +335,18 @@ async function addToCart() {
             }
             else {
                 cart.push({
-                    cartId: productId + color.textContent.trim().substring(1) + selectedSize,
+                    cartId: productId,
                     productId: productId,
                     quantity: document.querySelector('.user-quantity').value,
-                    color: color.textContent,
-                    colorPrice: selectedColorPrice.textContent.trim(),
-                    size: selectedSize
                 })
                 sessionStorage.setItem('cart', JSON.stringify(cart))
             }
         }
         else {
             sessionStorage.setItem('cart', JSON.stringify([{
-                cartId: productId + color.textContent.trim().substring(1) + selectedSize,
+                cartId: productId,
                 productId: productId,
                 quantity: 1,
-                color: color.textContent,
-                colorPrice: selectedColorPrice.textContent.trim(),
-                size: selectedSize
             }]))
         }
 
@@ -520,26 +405,19 @@ function displayMessage(message, type) {
 async function getCart() {
     return new Promise(async (resolve) => {
         if (loggedIn) {
-            console.log("form getCArt()")
             const cartSnapshot = await getDocs(collection(firestore, 'users', auth.currentUser.uid, 'cart'))
-            console.log("form getCArt(1.1)")
             if (cartSnapshot.empty) {
-                console.log("form getCArt(1.2)")
                 resolve([])
             }
-            console.log("form getCArt(1.3)")
             let cart = []
             cartSnapshot.forEach(doc => {
                 cart.push(doc.data())
             })
-            console.log("form getCArt(1.4)")
             resolve(cart)
         }
         else {
-            console.log("form getCArt1)")
             const cartSnapshot = JSON.parse(sessionStorage.getItem('cart'))
             if (!cartSnapshot) {
-                console.log('from true')
                 resolve([])
                 return
             }

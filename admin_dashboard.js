@@ -21,7 +21,8 @@ import {
     startAfter,
     endAt,
     orderBy,
-    getCountFromServer
+    getCountFromServer,
+    getUserSnapshot
 } from './assets/repository/initialize.js'
 
 /**
@@ -48,7 +49,7 @@ import {
     reauthenticateWithCredential,
 } from './assets/repository/initialize.js'
 
-import { getUserSnapshot } from './assets/repository/auth/auth.js';
+
 import { getUsersDocsSnapshot } from './assets/repository/admin-dash/admin-dash.js';
 
 var userData = null;

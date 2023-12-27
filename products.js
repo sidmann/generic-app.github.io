@@ -1,4 +1,3 @@
-import { getUserSnapshot } from './assets/repository/auth/auth.js';
 import {
     collection,
     query,
@@ -12,6 +11,7 @@ import {
     limit,
     startAfter,
     orderBy,
+    getUserSnapshot,
 } from './assets/repository/initialize.js'
 
 import {
@@ -22,9 +22,14 @@ import {
 } from './assets/repository/initialize.js'
 
 import {
-    getCategoryCount, getProductDocsSnapshot
+    getCategoryCount,
+    getProductDocsSnapshot
 } from './assets/repository/products/products.js';
-import { getCartCount, getCartDocsSnapshot } from './assets/repository/userCart/userCart.js';
+
+import { 
+    getCartCount,
+    getCartDocsSnapshot 
+} from './assets/repository/userCart/userCart.js';
 
 //---------------------------global variable----------------------------------
 
