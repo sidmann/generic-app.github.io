@@ -21,6 +21,7 @@ import {
     ref,
     uploadBytes
 } from "./assets/repository/initialize.js";
+import { getCartDocsQuerySnapshot, getCartDocsSnapshot } from "./assets/repository/userCart/userCart.js";
 
 //--------------------------------------gobal scripts---------------------------
 const productsRef = collection(firestore, 'products');
@@ -81,7 +82,7 @@ function postPageLoadEventListener() {
 async function getCart() {
     return new Promise(async (resolve) => {
         if (loggedIn) {
-            const cartSnapshot = await getDocs(collection(firestore, 'users', auth.currentUser.uid, 'cart'))
+            const cartSnapshot = await getCartDocsSnapshot(loggedIn, auth.currentUser.uid);
             if (cartSnapshot.empty) {
                 resolve([])
             }
@@ -177,9 +178,9 @@ function updateProfileName(role, fullName) {
         case 'CUSTOMER':
             profileNameElement = document.getElementById('customerAppbar').querySelector('.profile-name');
             break;
-        case 'AGENT':
-            profileNameElement = document.getElementById('agentAppbar').querySelector('.profile-name');
-            break;
+        // case 'AGENT':
+        //     profileNameElement = document.getElementById('agentAppbar').querySelector('.profile-name');
+        //     break;
         case 'ADMIN':
             profileNameElement = document.getElementById('adminAppbar').querySelector('.profile-name');
             break;
@@ -198,10 +199,10 @@ function updateProfilePicture(role, profilePicture) {
         case 'CUSTOMER':
             profilePictureElement = document.getElementById('customerAppbar').querySelector('#profile-picture');
             break;
-        case 'AGENT':
-            profilePictureElement = document.getElementById('agentAppbar').querySelector('#profile-picture');
-            break;
-        case 'ADMIN':
+        // case 'AGENT':
+        //     profilePictureElement = document.getElementById('agentAppbar').querySelector('#profile-picture');
+        //     break;
+        // case 'ADMIN':
             profilePictureElement = document.getElementById('adminAppbar').querySelector('#profile-picture');
             break;
         default:
@@ -223,7 +224,7 @@ function roleAccess(role) {
     const roleMap = new Map([
         ["ADMIN", "adminAppbar"],
         ["CUSTOMER", "customerAppbar"],
-        ["AGENT", "agentAppbar"],
+        // ["AGENT", "agentAppbar"],
     ]);
     const appbarList = document.querySelectorAll(`#${roleMap.get(role)}`);
     appbarList.forEach((appbar) => {
@@ -967,7 +968,7 @@ function getProductPrice(productId) {
 }
 
 async function increaseQuantity(productData, cartId, cartItem, event) {
-    await preIncreaseDecreaseQuantity()
+    await preIncreaseDecreaseQuantity(cartId)
     let targetButton = event.target
     console.log(cartId)
     let userInput = document.querySelector(`.product-${cartId} .user-quantity`)
@@ -977,12 +978,7 @@ async function increaseQuantity(productData, cartId, cartItem, event) {
 
     if (loggedIn) {
         console.log(cartId)
-        const cartDocs = await getDocs(
-            query(
-                collection(firestore, 'users', auth.currentUser.uid, 'cart'),
-                where('cartId', '==', cartId),
-            )
-        )
+        const cartDocs = await getCartDocsQuerySnapshot(cartId);
         await updateDoc(cartDocs.docs[0].ref, { quantity: ++userInput.value })
     }
     else {
