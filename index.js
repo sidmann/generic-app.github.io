@@ -46,6 +46,7 @@ import { firebaseErrorHandler } from "./assets/js/error.js";
 import { getCategoryDocsSnapshot } from './assets/repository/category/category.js';
 import { getManufacturerDocsSnapshot } from './assets/repository/manufacturer/manufacturer.js';
 import { getVideoSnapshot } from './assets/repository/admin-dash/admin-dash.js';
+import { getCartDocsSnapshot } from './assets/repository/userCart/userCart.js';
 
 //global
 const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
@@ -71,8 +72,9 @@ async function postPageLoadFunctions() {
     await updateCart();
     await fetchNavCategories();
     await fetchAndDisplayVideos();
+    embedCategoriesCard();
+    embedManufacturers();
 }
-
 
 /**
  * @param {auth}
@@ -105,7 +107,7 @@ function roleAccess(role) {
     const roleMap = new Map([
         ["ADMIN", "adminAppbar"],
         ["CUSTOMER", "customerAppbar"],
-        ["AGENT", "agentAppbar"],
+        // ["AGENT", "agentAppbar"],
     ]);
 
     const appbarList = document.querySelectorAll(`#${roleMap.get(role)}`);
@@ -650,7 +652,7 @@ function updateCart() {
 async function getCart() {
     return new Promise(async (resolve) => {
         if (loggedIn) {
-            const cartSnapshot = await getDocs(collection(firestore, 'users', auth.currentUser.uid, 'cart'))
+            const cartSnapshot = await getCartDocsSnapshot(loggedIn, auth.currentUser.uid);
             if (cartSnapshot.empty) {
                 resolve([])
             }
