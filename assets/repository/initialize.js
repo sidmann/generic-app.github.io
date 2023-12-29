@@ -56,14 +56,14 @@ import {
 //     appId: "1:296059905348:web:07ea2d69f5f6610e1d2311"
 //   };
 
+// Client database setting
 const firebaseConfig = {
-    apiKey: "AIzaSyDtX4OWk4DBn5f_APfGcwiwI6qMXBCKfhk",
-    authDomain: "myfireapp-8d543.firebaseapp.com",
-    databaseURL: "https://myfireapp-8d543-default-rtdb.firebaseio.com",
-    projectId: "myfireapp-8d543",
-    storageBucket: "myfireapp-8d543.appspot.com",
-    messagingSenderId: "484285304427",
-    appId: "1:484285304427:web:54c53464c02f04a4646b2e"
+    apiKey: "AIzaSyA8dXEmGalH7j1uWchxrdhx7xQNTQuu7gE",
+    authDomain: "client-webapp-22f57.firebaseapp.com",
+    projectId: "client-webapp-22f57",
+    storageBucket: "client-webapp-22f57.appspot.com",
+    messagingSenderId: "437931792288",
+    appId: "1:437931792288:web:934885ad9d7525050f76c5"
 };
 
 //global

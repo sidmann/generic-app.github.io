@@ -22,7 +22,7 @@ import {
     ref,
     uploadBytes, 
     getDownloadURL,
-    deleteObject
+    deleteObject,
 } from "./assets/repository/initialize.js";
 
 import { 
@@ -443,7 +443,7 @@ async function openUpdateModal(productId) {
             if (productImageInput.files.length > 0) {
                 console.log("if")
                 const newImageFile = productImageInput.files[0];
-                const storageRefOne = ref(getStorage(app), existingImageUrl);
+                const storageRefOne = ref(storage, existingImageUrl);
 
                 // Delete the old file
                 deleteObject(storageRefOne).then(() => {
@@ -498,7 +498,7 @@ async function openUpdateModal(productId) {
                     displayMessage('Product Updated!', 'success')
                     document.querySelector('#updateButton').disabled = false
                     document.querySelector('#updateButton').textContent = 'Save changes'
-                    fetchAndDisplayProducts();
+                    fetchAndDisplayProducts();l
                 })
             }
             console.log('inside update 2');

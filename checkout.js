@@ -1148,15 +1148,11 @@ async function embedSummaryproductCards() {
  * 
  * @author dev
  */
-function getProductCalcPrice({basePrice = null, colorPrice = null, size = null, quantity = 1} = {}){
-    const formattedSize = parseInt(size)
+function getProductCalcPrice({basePrice = null, quantity = 1} = {}){
+    // const formattedSize = parseInt(size)
     const formattedBasePrice = parseFloat(basePrice)
-    const formattedColorPrice = parseFloat(colorPrice)
-
-    if (quantity){
-        return parseFloat((formattedSize * formattedBasePrice) + (formattedColorPrice * formattedSize)) * parseFloat(quantity)    
-    }
-    return parseFloat((formattedSize * formattedBasePrice) + (formattedColorPrice * formattedSize))
+    // const formattedColorPrice = parseFloat(colorPrice)
+        return parseFloat(formattedBasePrice) * parseFloat(quantity);
 }
 
 function generateOrderId() {

@@ -7,7 +7,8 @@ import {
     createUserWithEmailAndPassword,
     updatePassword,
     EmailAuthProvider,
-    reauthenticateWithCredential
+    reauthenticateWithCredential,
+    getUserSnapshot
 } from './assets/repository/initialize.js'
 
 //firstore
@@ -40,6 +41,7 @@ import {
     uploadBytes,
     getDownloadURL
 } from './assets/repository/initialize.js'
+import { getCartDocsQuerySnapshot } from './assets/repository/userCart/userCart.js';
 
 var userData = null;
 let loggedIn = false
@@ -68,9 +70,9 @@ onAuthStateChanged(auth, async (user) => {
             btn.classList.remove('d-none')
          })
 
-        const docRef = doc(firestore, "users", user.uid);
+        // const docRef = doc(firestore, "users", user.uid);
         onLoggedIn();
-        const docSnap = getDoc(docRef);
+        const docSnap = getUserSnapshot(user.uid);
         var userData = null;
         docSnap.then(async (docSnapshot) => {
             // console.log(docSnapshot)
@@ -90,7 +92,6 @@ onAuthStateChanged(auth, async (user) => {
         document.querySelectorAll('.logout-btn').forEach((btn)=>{
             btn.classList.add('d-none')
          })
-        document.querySelector('#logout-btn').style.display = 'none';
     }
     await postPageLoadFunctions();
 });
@@ -232,7 +233,7 @@ async function getCart() {
     return new Promise(async (resolve) => {
         if (loggedIn) {
             console.log("form getCArt()")
-            const cartSnapshot = await getDocs(collection(firestore, 'users', auth.currentUser.uid, 'cart'))
+            const cartSnapshot = await getCartDocsQuerySnapshot(loggedIn, auth.currentUser.uid);
             console.log("form getCArt(1.1)")
             if (cartSnapshot.empty) {
                 console.log("form getCArt(1.2)")
@@ -263,14 +264,14 @@ async function getCart() {
     })
 }
 
-//get user snapshot cart(dependency)
-function getUserSnapshot(uid) {
-    const userRef = doc(firestore, 'users', uid)
-    console.log('3')
-    return new Promise((resolve, reject) => {
-        resolve(getDoc(userRef))
-    })
-}
+// //get user snapshot cart(dependency)
+// function getUserSnapshot(uid) {
+//     const userRef = doc(firestore, 'users', uid)
+//     console.log('3')
+//     return new Promise((resolve, reject) => {
+//         resolve(getDoc(userRef))
+//     })
+// }
 //*******************************************************************************************
 
 //*******************************************event listener**************************************
