@@ -2,7 +2,8 @@ import {
      initializeApp 
      } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
 
-import {
+import 
+{
     ref, 
     uploadBytes,
     uploadBytesResumable, 
@@ -11,7 +12,8 @@ import {
     deleteObject
     } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-storage.js";
 
-import {
+import 
+{
     getFirestore,
     collection,
     query,
@@ -56,15 +58,26 @@ import {
 //     appId: "1:296059905348:web:07ea2d69f5f6610e1d2311"
 //   };
 
+// const firebaseConfig = {
+//     apiKey: "AIzaSyDtX4OWk4DBn5f_APfGcwiwI6qMXBCKfhk",
+//     authDomain: "myfireapp-8d543.firebaseapp.com",
+//     databaseURL: "https://myfireapp-8d543-default-rtdb.firebaseio.com",
+//     projectId: "myfireapp-8d543",
+//     storageBucket: "myfireapp-8d543.appspot.com",
+//     messagingSenderId: "484285304427",
+//     appId: "1:484285304427:web:54c53464c02f04a4646b2e"
+// };
+
+
 const firebaseConfig = {
-    apiKey: "AIzaSyDtX4OWk4DBn5f_APfGcwiwI6qMXBCKfhk",
-    authDomain: "myfireapp-8d543.firebaseapp.com",
-    databaseURL: "https://myfireapp-8d543-default-rtdb.firebaseio.com",
-    projectId: "myfireapp-8d543",
-    storageBucket: "myfireapp-8d543.appspot.com",
-    messagingSenderId: "484285304427",
-    appId: "1:484285304427:web:54c53464c02f04a4646b2e"
-};
+    apiKey: "AIzaSyB6Mz_R3imLZ9Q885qutDaYQiBtJ0F0ss0",
+    authDomain: "clientapp-8e68f.firebaseapp.com",
+    projectId: "clientapp-8e68f",
+    storageBucket: "clientapp-8e68f.appspot.com",
+    messagingSenderId: "279156331",
+    appId: "1:279156331:web:599962ac7a0b1b81f8032e",
+    measurementId: "G-NL8FHV5R2R"
+  };
 
 //global
 const app = initializeApp(firebaseConfig);
