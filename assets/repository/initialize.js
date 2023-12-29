@@ -56,14 +56,24 @@ import {
 //     appId: "1:296059905348:web:07ea2d69f5f6610e1d2311"
 //   };
 
+// const firebaseConfig = {
+//     apiKey: "AIzaSyDtX4OWk4DBn5f_APfGcwiwI6qMXBCKfhk",
+//     authDomain: "myfireapp-8d543.firebaseapp.com",
+//     databaseURL: "https://myfireapp-8d543-default-rtdb.firebaseio.com",
+//     projectId: "myfireapp-8d543",
+//     storageBucket: "myfireapp-8d543.appspot.com",
+//     messagingSenderId: "484285304427",
+//     appId: "1:484285304427:web:54c53464c02f04a4646b2e"
+// };
+
+// shashank
 const firebaseConfig = {
-    apiKey: "AIzaSyDtX4OWk4DBn5f_APfGcwiwI6qMXBCKfhk",
-    authDomain: "myfireapp-8d543.firebaseapp.com",
-    databaseURL: "https://myfireapp-8d543-default-rtdb.firebaseio.com",
-    projectId: "myfireapp-8d543",
-    storageBucket: "myfireapp-8d543.appspot.com",
-    messagingSenderId: "484285304427",
-    appId: "1:484285304427:web:54c53464c02f04a4646b2e"
+    apiKey: "AIzaSyDhgMQuCgNeC9s6mjVgWTCYntA2_-s37e0",
+    authDomain: "d0028-4ad80.firebaseapp.com",
+    projectId: "d0028-4ad80",
+    storageBucket: "d0028-4ad80.appspot.com",
+    messagingSenderId: "120513052412",
+    appId: "1:120513052412:web:b8e62ee48bc68394016179"
 };
 
 //global
